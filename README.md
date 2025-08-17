@@ -53,6 +53,11 @@ A VS Code extension that provides comprehensive language support for Rule Logic 
 # Mammography Constraint Rules
 # ============================
 
+# Declare expected variables from model output
+expect mass_L, mass_R, mc_L, mc_R
+expect birads_L, birads_R, birads_score_L, birads_score_R
+expect comp
+
 # Define constants for reusable thresholds
 const high_risk_threshold = 0.7
 const low_risk_threshold = 0.3
@@ -102,6 +107,7 @@ Type the following prefixes for quick templates:
 **Basic Constructs:**
 - `define` - Variable definition
 - `const` - Constant definition  
+- `expect` - Variable expectation declaration
 - `constraint` - Basic constraint
 - `comment` - Comment block
 
@@ -153,6 +159,7 @@ Type the following prefixes for quick templates:
 
 - `define` - Define variables and expressions
 - `const` - Define constants for reusable values
+- `expect` - Declare which variables the script expects to be provided
 - `constraint` - Create constraint rules
 - `weight` - Set constraint importance (default: 1.0)
 - `transform` - Choose penalty function (`logbarrier`, `hinge`, `linear`)
@@ -274,6 +281,18 @@ This extension is designed to work with the Rule Logic DSL framework for mammogr
 - No language server protocol implementation yet
 
 ## Release Notes
+
+### 1.2.0
+
+Added support for variable expectations:
+
+- **New `expect` Keyword**: Declare which variables (features) the script expects to be provided
+- **Variable Declaration Syntax**: Support for both single (`expect variable`) and multiple (`expect var1, var2, var3`) variable declarations  
+- **Enhanced Validation**: Recognition and validation of expect statements
+- **Updated Snippets**: New snippets for expect declarations including `expect`, `expect_multi`, and `expect_section`
+- **Improved IntelliSense**: Completion and hover documentation for expect keyword
+- **Document Outline**: Expect statements appear in document outline for better navigation
+- **Updated Templates**: Mammography template now includes proper expect declarations
 
 ### 1.0.0
 

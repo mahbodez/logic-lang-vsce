@@ -13,6 +13,32 @@
     ],
     "description": "Define a constant value"
   },
+  "Expect Single Variable": {
+    "prefix": "expect",
+    "body": [
+      "expect ${1:variable_name}"
+    ],
+    "description": "Declare a single expected variable"
+  },
+  "Expect Multiple Variables": {
+    "prefix": "expect_multi",
+    "body": [
+      "expect ${1:variable1}, ${2:variable2}, ${3:variable3}"
+    ],
+    "description": "Declare multiple expected variables"
+  },
+  "Expect Variables Section": {
+    "prefix": "expect_section",
+    "body": [
+      "# Expected Variables",
+      "# ==================",
+      "",
+      "expect ${1:mass_L}, ${2:mass_R}, ${3:mc_L}, ${4:mc_R}",
+      "expect ${5:birads_L}, ${6:birads_R}, ${7:comp}",
+      ""
+    ],
+    "description": "Complete expected variables section"
+  },
   "Basic Constraint": {
     "prefix": "constraint",
     "body": [
@@ -208,5 +234,52 @@
       "const ${7:range_max} = ${8:0.9}"
     ],
     "description": "Constants section template"
+  },
+  "Mammography Rule Template": {
+    "prefix": "mammo_template",
+    "body": [
+      "# Mammography Constraint Rules",
+      "# ============================",
+      "",
+      "# Declare expected variables from model output",
+      "expect mass_L, mass_R, mc_L, mc_R",
+      "expect birads_L, birads_R, birads_score_L, birads_score_R",
+      "expect comp",
+      "",
+      "# Define constants for reusable thresholds",
+      "const high_risk_threshold = 0.7",
+      "const low_risk_threshold = 0.3",
+      "const birads_high_cutoff = 4",
+      "",
+      "# Feature definitions - combine findings per breast",
+      "define findings_L = mass_L | mc_L",
+      "define findings_R = mass_R | mc_R",
+      "",
+      "# BI-RADS probability groups using constants",
+      "define high_birads_L = sum(birads_L, [4, 5, 6])",
+      "define high_birads_R = sum(birads_R, [4, 5, 6])",
+      "",
+      "# Threshold-based risk assessments",
+      "define high_risk_L = birads_score_L > high_risk_threshold",
+      "define high_risk_R = birads_score_R > high_risk_threshold",
+      "",
+      "# Range constraints",
+      "define valid_range_L = (birads_score_L >= 0.0) & (birads_score_L <= 1.0)",
+      "define valid_range_R = (birads_score_R >= 0.0) & (birads_score_R <= 1.0)",
+      "",
+      "# Categorical exclusivity constraints",
+      "constraint exactly_one(birads_L) weight=1.0 transform=\"logbarrier\"",
+      "constraint exactly_one(birads_R) weight=1.0 transform=\"logbarrier\"",
+      "constraint exactly_one(comp) weight=0.7 transform=\"logbarrier\"",
+      "",
+      "# Logical implication constraints",
+      "constraint high_risk_L >> findings_L weight=0.8 transform=\"logbarrier\"",
+      "constraint high_risk_R >> findings_R weight=0.8 transform=\"logbarrier\"",
+      "",
+      "# Range validation constraints",
+      "constraint valid_range_L weight=2.0 transform=\"logbarrier\"",
+      "constraint valid_range_R weight=2.0 transform=\"logbarrier\""
+    ],
+    "description": "Complete mammography rule template with expect declarations"
   }
 }

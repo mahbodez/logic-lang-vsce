@@ -27,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const hoveredWord = document.getText(word);
 			
 			const functionDocs: { [key: string]: string } = {
+				'expect': 'Declares which variables (features) the script expects to be provided.\n\nUsage: \n- `expect variable_name`\n- `expect variable1, variable2, variable3`\n\nExample: `expect mass_L, mass_R, birads_L, birads_R`\n\nShould be placed at the beginning of the script for better error handling.',
 				'exactly_one': 'Creates exactly-one constraint for categorical probabilities.\n\nUsage: `exactly_one(probabilities)`\n\nEnsures that exactly one category is selected from mutually exclusive options.',
 				'sum': 'Sums probabilities for specified class indices.\n\nUsage: `sum(probabilities, [indices])`\n\nExample: `sum(birads_L, [4, 5, 6])` combines high BI-RADS categories.',
 				'mutual_exclusion': 'Creates mutual exclusion constraint between probabilities.\n\nUsage: `mutual_exclusion(prob1, prob2, ...)`\n\nEnsures at most one of the given probabilities can be high.',
@@ -81,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 
 			// Keywords
-			const keywords = ['define', 'constraint', 'const', 'weight', 'transform'];
+			const keywords = ['define', 'constraint', 'const', 'expect', 'weight', 'transform'];
 			keywords.forEach(keyword => {
 				const item = new vscode.CompletionItem(keyword, vscode.CompletionItemKind.Keyword);
 				items.push(item);
@@ -127,6 +128,20 @@ export function activate(context: vscode.ExtensionContext) {
 						constMatch[1],
 						'Constant Definition',
 						vscode.SymbolKind.Constant,
+						new vscode.Range(lineIndex, 0, lineIndex, line.length),
+						new vscode.Range(lineIndex, 0, lineIndex, line.length)
+					);
+					symbols.push(symbol);
+				}
+
+				// Find expect statements
+				const expectMatch = line.match(/^\s*expect\s+(.+)/);
+				if (expectMatch) {
+					const variables = expectMatch[1].trim();
+					const symbol = new vscode.DocumentSymbol(
+						'Expected Variables',
+						variables,
+						vscode.SymbolKind.Interface,
 						new vscode.Range(lineIndex, 0, lineIndex, line.length),
 						new vscode.Range(lineIndex, 0, lineIndex, line.length)
 					);
@@ -185,6 +200,20 @@ function validateLogicFile(document: vscode.TextDocument) {
 				const diagnostic = new vscode.Diagnostic(
 					new vscode.Range(lineIndex, 0, lineIndex, line.length),
 					'Invalid const statement. Expected: const constant_name = value',
+					vscode.DiagnosticSeverity.Error
+				);
+				diagnostics.push(diagnostic);
+			}
+		}
+
+		// Validate expect statements
+		if (trimmedLine.startsWith('expect')) {
+			// Check for single variable: expect variable_name
+			// Check for multiple variables: expect var1, var2, var3
+			if (!trimmedLine.match(/^expect\s+\w+(\s*,\s*\w+)*\s*$/)) {
+				const diagnostic = new vscode.Diagnostic(
+					new vscode.Range(lineIndex, 0, lineIndex, line.length),
+					'Invalid expect statement. Expected: expect variable_name or expect var1, var2, var3',
 					vscode.DiagnosticSeverity.Error
 				);
 				diagnostics.push(diagnostic);

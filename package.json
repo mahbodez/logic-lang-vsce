@@ -2,7 +2,7 @@
   "name": "rule-logic-language-support",
   "displayName": "Rule Logic Language Support", 
   "description": "Language support for Rule Logic DSL files (.logic) with syntax highlighting and IntelliSense",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "MahbodIssaiy",
   "author": {
     "name": "MahbodIssaiy"

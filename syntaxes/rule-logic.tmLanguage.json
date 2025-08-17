@@ -44,7 +44,7 @@
       "patterns": [
         {
           "name": "keyword.control.rule-logic",
-          "match": "\\b(define|constraint|const)\\b"
+          "match": "\\b(define|constraint|const|expect)\\b"
         },
         {
           "name": "keyword.other.rule-logic",
