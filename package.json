@@ -1,0 +1,83 @@
+{
+  "name": "rule-logic-language-support",
+  "displayName": "Rule Logic Language Support", 
+  "description": "Language support for Rule Logic DSL files (.logic) with syntax highlighting and IntelliSense",
+  "version": "1.1.0",
+  "publisher": "MahbodIssaiy",
+  "author": {
+    "name": "MahbodIssaiy"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mahbodez/logic-lang-vsce",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mahbodez/logic-lang-vsce.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mahbodez/logic-lang-vsce/issues"
+  },
+  "keywords": [
+    "rule-logic",
+    "dsl",
+    "mammography",
+    "constraints", 
+    "soft-logic",
+    "medical-imaging"
+  ],
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "rule-logic",
+        "aliases": ["Rule Logic", "rule-logic"],
+        "extensions": [".logic"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rule-logic",
+        "scopeName": "source.rule-logic",
+        "path": "./syntaxes/rule-logic.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "rule-logic",
+        "path": "./snippets/rule-logic.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "rule-logic-language-support.validateLogicFile",
+        "title": "Validate Logic File"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.103.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.32.0",
+    "typescript": "^5.9.2",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}

@@ -1,0 +1,36 @@
+# Sample Rule Logic File
+# ======================
+
+# Feature definitions - combine findings per breast
+define findings_L = mass_L | mc_L
+define findings_R = mass_R | mc_R
+
+# BI-RADS probability groups
+define high_birads_L = sum(birads_L, [4, 5, 6])
+define high_birads_R = sum(birads_R, [4, 5, 6])
+define very_high_birads_L = sum(birads_L, [5, 6])
+define very_high_birads_R = sum(birads_R, [5, 6])
+define low_birads_L = sum(birads_L, [1, 2])
+define low_birads_R = sum(birads_R, [1, 2])
+
+# No findings (negation of findings)
+define no_findings_L = ~findings_L
+define no_findings_R = ~findings_R
+
+# Categorical exclusivity constraints
+constraint exactly_one(birads_L) weight=1.0 transform="logbarrier"
+constraint exactly_one(birads_R) weight=1.0 transform="logbarrier" 
+constraint exactly_one(comp) weight=0.7 transform="logbarrier"
+
+# Logical implication constraints
+# Findings -> High BI-RADS (4-6)
+constraint findings_L >> high_birads_L weight=0.7 transform="logbarrier"
+constraint findings_R >> high_birads_R weight=0.7 transform="logbarrier"
+
+# Very High BI-RADS (5-6) -> Findings
+constraint very_high_birads_L >> findings_L weight=0.7 transform="logbarrier"
+constraint very_high_birads_R >> findings_R weight=0.7 transform="logbarrier"
+
+# Low BI-RADS (1-2) -> No findings (gentle constraint)
+constraint low_birads_L >> no_findings_L weight=0.3 transform="logbarrier"
+constraint low_birads_R >> no_findings_R weight=0.3 transform="logbarrier"

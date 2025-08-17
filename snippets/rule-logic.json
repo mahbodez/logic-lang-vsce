@@ -1,0 +1,212 @@
+{
+  "Define Variable": {
+    "prefix": "define",
+    "body": [
+      "define ${1:variable_name} = ${2:expression}"
+    ],
+    "description": "Define a new variable"
+  },
+  "Define Constant": {
+    "prefix": "const",
+    "body": [
+      "const ${1:constant_name} = ${2:value}"
+    ],
+    "description": "Define a constant value"
+  },
+  "Basic Constraint": {
+    "prefix": "constraint",
+    "body": [
+      "constraint ${1:expression} weight=${2:1.0} transform=\"${3:logbarrier}\""
+    ],
+    "description": "Create a basic constraint"
+  },
+  "Exactly One Constraint": {
+    "prefix": "exactly_one",
+    "body": [
+      "constraint exactly_one(${1:probabilities}) weight=${2:1.0} transform=\"${3:logbarrier}\""
+    ],
+    "description": "Create exactly-one constraint for categorical probabilities"
+  },
+  "At Least K Constraint": {
+    "prefix": "at_least_k",
+    "body": [
+      "constraint at_least_k(${1:probabilities}, ${2:k}) weight=${3:0.6} transform=\"${4:logbarrier}\""
+    ],
+    "description": "Create at-least-k constraint"
+  },
+  "At Most K Constraint": {
+    "prefix": "at_most_k",
+    "body": [
+      "constraint at_most_k(${1:probabilities}, ${2:k}) weight=${3:0.7} transform=\"${4:logbarrier}\""
+    ],
+    "description": "Create at-most-k constraint"
+  },
+  "Exactly K Constraint": {
+    "prefix": "exactly_k",
+    "body": [
+      "constraint exactly_k(${1:probabilities}, ${2:k}) weight=${3:0.8} transform=\"${4:logbarrier}\""
+    ],
+    "description": "Create exactly-k constraint"
+  },
+  "Implication Constraint": {
+    "prefix": "implies",
+    "body": [
+      "constraint ${1:antecedent} >> ${2:consequent} weight=${3:0.7} transform=\"${4:logbarrier}\""
+    ],
+    "description": "Create implication constraint (if A then B)"
+  },
+  "Threshold Implication": {
+    "prefix": "threshold_implication",
+    "body": [
+      "constraint threshold_implication(${1:antecedent}, ${2:consequent}, ${3:0.7}) weight=${4:0.9} transform=\"${5:logbarrier}\""
+    ],
+    "description": "Create threshold-based implication constraint"
+  },
+  "Conditional Probability": {
+    "prefix": "conditional_probability",
+    "body": [
+      "constraint conditional_probability(${1:condition}, ${2:event}, ${3:0.85}) weight=${4:0.8} transform=\"${5:logbarrier}\""
+    ],
+    "description": "Create conditional probability constraint"
+  },
+  "Sum Function": {
+    "prefix": "sum",
+    "body": [
+      "sum(${1:probabilities}, [${2:indices}])"
+    ],
+    "description": "Sum probabilities for specified class indices"
+  },
+  "Mutual Exclusion": {
+    "prefix": "mutual_exclusion",
+    "body": [
+      "constraint mutual_exclusion(${1:prob1}, ${2:prob2}) weight=${3:0.5} transform=\"${4:logbarrier}\""
+    ],
+    "description": "Create mutual exclusion constraint"
+  },
+  "Greater Than": {
+    "prefix": "greater_than",
+    "body": [
+      "greater_than(${1:left}, ${2:right})"
+    ],
+    "description": "Soft greater than comparison"
+  },
+  "Less Than": {
+    "prefix": "less_than",
+    "body": [
+      "less_than(${1:left}, ${2:right})"
+    ],
+    "description": "Soft less than comparison"
+  },
+  "Equals": {
+    "prefix": "equals",
+    "body": [
+      "equals(${1:left}, ${2:right})"
+    ],
+    "description": "Soft equality comparison"
+  },
+  "Threshold Constraint": {
+    "prefix": "threshold_constraint",
+    "body": [
+      "threshold_constraint(${1:tensor}, ${2:threshold}, \"${3:>}\")"
+    ],
+    "description": "Threshold constraint with comparison operator"
+  },
+  "Clamp Function": {
+    "prefix": "clamp",
+    "body": [
+      "clamp(${1:tensor}, ${2:min_val}, ${3:max_val})"
+    ],
+    "description": "Clamp tensor values to range"
+  },
+  "Threshold Function": {
+    "prefix": "threshold",
+    "body": [
+      "threshold(${1:tensor}, ${2:threshold_val})"
+    ],
+    "description": "Apply threshold to tensor"
+  },
+  "Comparison Greater": {
+    "prefix": "greater",
+    "body": [
+      "${1:variable} > ${2:threshold}"
+    ],
+    "description": "Greater than comparison"
+  },
+  "Comparison Less": {
+    "prefix": "less",
+    "body": [
+      "${1:variable} < ${2:threshold}"
+    ],
+    "description": "Less than comparison"
+  },
+  "Comparison Equal": {
+    "prefix": "equal",
+    "body": [
+      "${1:variable} == ${2:value}"
+    ],
+    "description": "Equality comparison"
+  },
+  "Range Constraint": {
+    "prefix": "range",
+    "body": [
+      "(${1:variable} >= ${2:min_val}) & (${1:variable} <= ${3:max_val})"
+    ],
+    "description": "Range constraint with min and max values"
+  },
+  "Tensor Indexing": {
+    "prefix": "index",
+    "body": [
+      "${1:tensor}[${2:index}]"
+    ],
+    "description": "Tensor indexing"
+  },
+  "Tensor Slicing": {
+    "prefix": "slice",
+    "body": [
+      "${1:tensor}[${2:start}:${3:end}]"
+    ],
+    "description": "Tensor slicing"
+  },
+  "Multi-dimensional Index": {
+    "prefix": "multi_index",
+    "body": [
+      "${1:tensor}[${2:dim1}, ${3:dim2}]"
+    ],
+    "description": "Multi-dimensional tensor indexing"
+  },
+  "AND across tensor": {
+    "prefix": "and_tensor",
+    "body": [
+      "& ${1:tensor_variable}"
+    ],
+    "description": "AND operation across all elements in tensor"
+  },
+  "OR across tensor": {
+    "prefix": "or_tensor",
+    "body": [
+      "| ${1:tensor_variable}"
+    ],
+    "description": "OR operation across all elements in tensor"
+  },
+  "Comment Block": {
+    "prefix": "comment",
+    "body": [
+      "# ${1:Comment description}",
+      "# $2"
+    ],
+    "description": "Add comment block"
+  },
+  "Constants Section": {
+    "prefix": "constants",
+    "body": [
+      "# Constants",
+      "# =========",
+      "",
+      "const ${1:threshold_name} = ${2:0.7}",
+      "const ${3:cutoff_name} = ${4:4}",
+      "const ${5:range_min} = ${6:0.1}",
+      "const ${7:range_max} = ${8:0.9}"
+    ],
+    "description": "Constants section template"
+  }
+}

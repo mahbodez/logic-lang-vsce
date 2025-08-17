@@ -1,0 +1,52 @@
+# Test file to verify all Rule Language features
+# ==============================================
+
+# Constants section
+const high_threshold = 0.8
+const low_threshold = 0.2
+const important_classes = [4, 5, 6]
+const consensus_level = 2
+
+# Variable definitions with various operators
+define findings_L = mass_L | mc_L
+define findings_R = mass_R | mc_R
+define high_birads_L = sum(birads_L, important_classes)
+
+# Comparison operators
+define high_risk_L = risk_score_L > high_threshold
+define low_risk_L = risk_score_L < low_threshold
+define exact_match = score_a == score_b
+define within_range = (value >= 0.1) & (value <= 0.9)
+
+# Tensor operations (AND_n and OR_n)
+define consensus = & radiologist_assessments
+define any_concern = | radiologist_assessments
+
+# Indexing and slicing
+define first_patient = patient_data[0]
+define patient_subset = patient_data[:3]
+define specific_view = assessments[1, 2]
+define senior_radiologist = opinions[:, :, 0]
+
+# Advanced functions
+define at_least_two = at_least_k(findings, 2)
+define exactly_three = exactly_k(assessments, 3)
+define soft_greater = greater_than(confidence, baseline)
+define soft_equal = equals(left_score, right_score)
+
+# Basic constraints
+constraint exactly_one(birads_L) weight=1.0 transform="logbarrier"
+constraint mutual_exclusion(mass_L, calc_L) weight=0.5
+
+# Implication constraints
+constraint high_risk_L >> findings_L weight=0.8 transform="logbarrier"
+
+# Advanced constraints
+constraint at_least_k(combined_findings, 2) weight=0.6
+constraint conditional_probability(high_birads_L, findings_L, 0.85) weight=0.8
+constraint threshold_implication(consensus, high_confidence, 0.7) weight=0.9
+constraint threshold_constraint(birads_score, 0.7, ">") weight=0.7
+
+# Range and comparison constraints
+constraint within_range weight=1.0 transform="hinge"
+constraint soft_equal weight=0.4 transform="linear"
