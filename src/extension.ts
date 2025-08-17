@@ -108,58 +108,68 @@ export function activate(context: vscode.ExtensionContext) {
 			const lines = text.split('\n');
 
 			lines.forEach((line, lineIndex) => {
-				// Find define statements
-				const defineMatch = line.match(/^\s*define\s+(\w+)\s*=/);
-				if (defineMatch) {
-					const symbol = new vscode.DocumentSymbol(
-						defineMatch[1],
-						'Variable Definition',
-						vscode.SymbolKind.Variable,
-						new vscode.Range(lineIndex, 0, lineIndex, line.length),
-						new vscode.Range(lineIndex, 0, lineIndex, line.length)
-					);
-					symbols.push(symbol);
-				}
+				// Split the line by semicolons to handle multiple statements
+				const statements = splitLineByStatements(line, lineIndex);
+				
+				statements.forEach(({ statement, columnStart }) => {
+					// Skip empty statements and comments
+					if (!statement || statement.startsWith('#')) {
+						return;
+					}
 
-				// Find const statements
-				const constMatch = line.match(/^\s*const\s+(\w+)\s*=/);
-				if (constMatch) {
-					const symbol = new vscode.DocumentSymbol(
-						constMatch[1],
-						'Constant Definition',
-						vscode.SymbolKind.Constant,
-						new vscode.Range(lineIndex, 0, lineIndex, line.length),
-						new vscode.Range(lineIndex, 0, lineIndex, line.length)
-					);
-					symbols.push(symbol);
-				}
+					// Find define statements
+					const defineMatch = statement.match(/^define\s+(\w+)\s*=/);
+					if (defineMatch) {
+						const symbol = new vscode.DocumentSymbol(
+							defineMatch[1],
+							'Variable Definition',
+							vscode.SymbolKind.Variable,
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length)
+						);
+						symbols.push(symbol);
+					}
 
-				// Find expect statements
-				const expectMatch = line.match(/^\s*expect\s+(.+)/);
-				if (expectMatch) {
-					const variables = expectMatch[1].trim();
-					const symbol = new vscode.DocumentSymbol(
-						'Expected Variables',
-						variables,
-						vscode.SymbolKind.Interface,
-						new vscode.Range(lineIndex, 0, lineIndex, line.length),
-						new vscode.Range(lineIndex, 0, lineIndex, line.length)
-					);
-					symbols.push(symbol);
-				}
+					// Find const statements
+					const constMatch = statement.match(/^const\s+(\w+)\s*=/);
+					if (constMatch) {
+						const symbol = new vscode.DocumentSymbol(
+							constMatch[1],
+							'Constant Definition',
+							vscode.SymbolKind.Constant,
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length)
+						);
+						symbols.push(symbol);
+					}
 
-				// Find constraint statements
-				const constraintMatch = line.match(/^\s*constraint\s+(.+)/);
-				if (constraintMatch) {
-					const symbol = new vscode.DocumentSymbol(
-						'Constraint',
-						constraintMatch[1].trim(),
-						vscode.SymbolKind.Function,
-						new vscode.Range(lineIndex, 0, lineIndex, line.length),
-						new vscode.Range(lineIndex, 0, lineIndex, line.length)
-					);
-					symbols.push(symbol);
-				}
+					// Find expect statements
+					const expectMatch = statement.match(/^expect\s+(.+)/);
+					if (expectMatch) {
+						const variables = expectMatch[1].trim();
+						const symbol = new vscode.DocumentSymbol(
+							'Expected Variables',
+							variables,
+							vscode.SymbolKind.Interface,
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length)
+						);
+						symbols.push(symbol);
+					}
+
+					// Find constraint statements
+					const constraintMatch = statement.match(/^constraint\s+(.+)/);
+					if (constraintMatch) {
+						const symbol = new vscode.DocumentSymbol(
+							'Constraint',
+							constraintMatch[1].trim(),
+							vscode.SymbolKind.Function,
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+							new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length)
+						);
+						symbols.push(symbol);
+					}
+				});
 			});
 
 			return symbols;
@@ -169,80 +179,135 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(validateCommand, hoverProvider, completionProvider, symbolProvider);
 }
 
+// Helper function to split lines by semicolons while preserving line numbers
+function splitLineByStatements(line: string, lineIndex: number): { statement: string, lineIndex: number, columnStart: number }[] {
+	const statements: { statement: string, lineIndex: number, columnStart: number }[] = [];
+	
+	// Split by semicolons, but be careful about semicolons inside strings
+	let currentStatement = '';
+	let inString = false;
+	let stringChar = '';
+	let columnStart = 0;
+	
+	for (let i = 0; i < line.length; i++) {
+		const char = line[i];
+		
+		if (!inString && (char === '"' || char === "'")) {
+			inString = true;
+			stringChar = char;
+			currentStatement += char;
+		} else if (inString && char === stringChar && line[i-1] !== '\\') {
+			inString = false;
+			stringChar = '';
+			currentStatement += char;
+		} else if (!inString && char === ';') {
+			// Found a statement separator
+			const trimmed = currentStatement.trim();
+			if (trimmed) {
+				statements.push({
+					statement: trimmed,
+					lineIndex: lineIndex,
+					columnStart: columnStart
+				});
+			}
+			// Reset for next statement
+			currentStatement = '';
+			columnStart = i + 1;
+		} else {
+			currentStatement += char;
+		}
+	}
+	
+	// Add the last statement if it exists
+	const trimmed = currentStatement.trim();
+	if (trimmed) {
+		statements.push({
+			statement: trimmed,
+			lineIndex: lineIndex,
+			columnStart: columnStart
+		});
+	}
+	
+	return statements;
+}
+
 function validateLogicFile(document: vscode.TextDocument) {
 	const text = document.getText();
 	const diagnostics: vscode.Diagnostic[] = [];
 	const lines = text.split('\n');
 
 	lines.forEach((line, lineIndex) => {
-		const trimmedLine = line.trim();
+		// Split the line by semicolons to handle multiple statements
+		const statements = splitLineByStatements(line, lineIndex);
 		
-		// Skip empty lines and comments
-		if (!trimmedLine || trimmedLine.startsWith('#')) {
-			return;
-		}
+		statements.forEach(({ statement, columnStart }) => {
+			// Skip empty statements and comments
+			if (!statement || statement.startsWith('#')) {
+				return;
+			}
 
-		// Validate define statements
-		if (trimmedLine.startsWith('define')) {
-			if (!trimmedLine.match(/^define\s+\w+\s*=\s*.+/)) {
+			// Validate define statements
+			if (statement.startsWith('define')) {
+				if (!statement.match(/^define\s+\w+\s*=\s*.+/)) {
+					const diagnostic = new vscode.Diagnostic(
+						new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+						'Invalid define statement. Expected: define variable_name = expression',
+						vscode.DiagnosticSeverity.Error
+					);
+					diagnostics.push(diagnostic);
+				}
+			}
+
+			// Validate const statements
+			if (statement.startsWith('const')) {
+				if (!statement.match(/^const\s+\w+\s*=\s*.+/)) {
+					const diagnostic = new vscode.Diagnostic(
+						new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+						'Invalid const statement. Expected: const constant_name = value',
+						vscode.DiagnosticSeverity.Error
+					);
+					diagnostics.push(diagnostic);
+				}
+			}
+
+			// Validate expect statements
+			if (statement.startsWith('expect')) {
+				// Check for single variable: expect variable_name
+				// Check for multiple variables: expect var1, var2, var3
+				if (!statement.match(/^expect\s+\w+(\s*,\s*\w+)*\s*$/)) {
+					const diagnostic = new vscode.Diagnostic(
+						new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+						'Invalid expect statement. Expected: expect variable_name or expect var1, var2, var3',
+						vscode.DiagnosticSeverity.Error
+					);
+					diagnostics.push(diagnostic);
+				}
+			}
+
+			// Validate constraint statements
+			if (statement.startsWith('constraint')) {
+				if (!statement.match(/^constraint\s+.+/)) {
+					const diagnostic = new vscode.Diagnostic(
+						new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+						'Invalid constraint statement. Expected: constraint expression [parameters]',
+						vscode.DiagnosticSeverity.Error
+					);
+					diagnostics.push(diagnostic);
+				}
+			}
+
+			// Check for unbalanced parentheses in each statement
+			const openParen = (statement.match(/\(/g) || []).length;
+			const closeParen = (statement.match(/\)/g) || []).length;
+			if (openParen !== closeParen) {
 				const diagnostic = new vscode.Diagnostic(
-					new vscode.Range(lineIndex, 0, lineIndex, line.length),
-					'Invalid define statement. Expected: define variable_name = expression',
-					vscode.DiagnosticSeverity.Error
+					new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
+					'Unbalanced parentheses',
+					vscode.DiagnosticSeverity.Warning
 				);
 				diagnostics.push(diagnostic);
 			}
-		}
-
-		// Validate const statements
-		if (trimmedLine.startsWith('const')) {
-			if (!trimmedLine.match(/^const\s+\w+\s*=\s*.+/)) {
-				const diagnostic = new vscode.Diagnostic(
-					new vscode.Range(lineIndex, 0, lineIndex, line.length),
-					'Invalid const statement. Expected: const constant_name = value',
-					vscode.DiagnosticSeverity.Error
-				);
-				diagnostics.push(diagnostic);
-			}
-		}
-
-		// Validate expect statements
-		if (trimmedLine.startsWith('expect')) {
-			// Check for single variable: expect variable_name
-			// Check for multiple variables: expect var1, var2, var3
-			if (!trimmedLine.match(/^expect\s+\w+(\s*,\s*\w+)*\s*$/)) {
-				const diagnostic = new vscode.Diagnostic(
-					new vscode.Range(lineIndex, 0, lineIndex, line.length),
-					'Invalid expect statement. Expected: expect variable_name or expect var1, var2, var3',
-					vscode.DiagnosticSeverity.Error
-				);
-				diagnostics.push(diagnostic);
-			}
-		}
-
-		// Validate constraint statements
-		if (trimmedLine.startsWith('constraint')) {
-			if (!trimmedLine.match(/^constraint\s+.+/)) {
-				const diagnostic = new vscode.Diagnostic(
-					new vscode.Range(lineIndex, 0, lineIndex, line.length),
-					'Invalid constraint statement. Expected: constraint expression [parameters]',
-					vscode.DiagnosticSeverity.Error
-				);
-				diagnostics.push(diagnostic);
-			}
-		}
-
-		// Check for unbalanced parentheses
-		const openParen = (line.match(/\(/g) || []).length;
-		const closeParen = (line.match(/\)/g) || []).length;
-		if (openParen !== closeParen) {
-			const diagnostic = new vscode.Diagnostic(
-				new vscode.Range(lineIndex, 0, lineIndex, line.length),
-				'Unbalanced parentheses',
-				vscode.DiagnosticSeverity.Warning
-			);
-			diagnostics.push(diagnostic);
-		}
+		});
 	});
 
 	// Clear previous diagnostics and set new ones

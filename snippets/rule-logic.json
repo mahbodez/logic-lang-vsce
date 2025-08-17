@@ -281,5 +281,33 @@
       "constraint valid_range_R weight=2.0 transform=\"logbarrier\""
     ],
     "description": "Complete mammography rule template with expect declarations"
+  },
+  "Multiple Statements (Semicolon)": {
+    "prefix": "multi_statements",
+    "body": [
+      "expect ${1:var1}, ${2:var2}; define ${3:result} = ${1:var1} | ${2:var2}; constraint ${3:result}"
+    ],
+    "description": "Multiple statements on one line using semicolons"
+  },
+  "Constants with Semicolons": {
+    "prefix": "const_multi",
+    "body": [
+      "const ${1:low} = ${2:0.2}; const ${3:high} = ${4:0.8}; define ${5:range_check} = ${6:value} >= ${1:low} & ${6:value} <= ${3:high}"
+    ],
+    "description": "Multiple constants and definition using semicolons"
+  },
+  "Expect and Define": {
+    "prefix": "expect_define",
+    "body": [
+      "expect ${1:variable}; define ${2:result} = ${1:variable} ${3:operator} ${4:threshold}"
+    ],
+    "description": "Expect variable and define result using semicolon"
+  },
+  "Quick Setup": {
+    "prefix": "quick_setup",
+    "body": [
+      "const ${1:threshold} = ${2:0.5}; expect ${3:risk_score}; define ${4:high_risk} = ${3:risk_score} > ${1:threshold}; constraint ${4:high_risk} weight=${5:0.8}"
+    ],
+    "description": "Quick setup with constant, expect, define, and constraint"
   }
 }

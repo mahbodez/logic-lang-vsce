@@ -67,6 +67,9 @@ const birads_high_cutoff = 4
 define findings_L = mass_L | mc_L
 define findings_R = mass_R | mc_R
 
+# Multiple statements on one line using semicolons
+expect confidence; const threshold = 0.8; define high_conf = confidence > threshold
+
 # BI-RADS probability groups using constants
 define high_birads_L = sum(birads_L, [4, 5, 6])
 define high_birads_R = sum(birads_R, [4, 5, 6])
@@ -90,9 +93,8 @@ define valid_range_L = (birads_score_L >= 0.0) & (birads_score_L <= 1.0)
 constraint exactly_one(birads_L) weight=1.0 transform="logbarrier"
 constraint exactly_one(birads_R) weight=1.0 transform="logbarrier"
 
-# Logical implication constraints
-constraint high_risk_L >> findings_L weight=0.8 transform="logbarrier"
-constraint high_risk_R >> findings_R weight=0.8 transform="logbarrier"
+# Multiple constraints on one line
+constraint high_risk_L >> findings_L weight=0.8; constraint high_risk_R >> findings_R weight=0.8
 
 # Advanced constraint types
 constraint at_least_k(findings_combined, 2) weight=0.6 transform="logbarrier"
@@ -145,7 +147,7 @@ Type the following prefixes for quick templates:
 - `consensus` - Consensus definition
 - `any_evidence` - Any evidence definition
 
-**Medical Domain Templates:**
+**Advanced Domain Templates:**
 - `findings` - Findings definition template
 - `high_birads` - High BI-RADS definition
 - `risk_assessment` - Risk assessment with threshold
@@ -153,7 +155,43 @@ Type the following prefixes for quick templates:
 - `mammo_template` - Complete mammography rule template
 - `advanced_template` - Advanced template with tensor operations
 
+**Semicolon Patterns:**
+- `multi_statements` - Multiple statements on one line using semicolons
+- `const_multi` - Multiple constants and definition using semicolons
+- `expect_define` - Expect variable and define result using semicolon
+- `quick_setup` - Quick setup with constant, expect, define, and constraint
+
 ## Language Syntax
+
+### Statement Separation
+
+**Line-based Separation (Traditional):**
+```logic
+expect variables
+define result = expression
+constraint result
+```
+
+**Semicolon Separation:**
+```logic
+# Multiple statements on one line
+expect a, b; define c = a | b; constraint c
+
+# Mix of semicolons and newlines
+const threshold = 0.5; expect risk_score
+define high_risk = risk_score > threshold
+constraint high_risk weight=0.8
+
+# Trailing semicolons are optional and ignored
+expect variables;
+define result = expression;
+```
+
+**String-aware Parsing:**
+The semicolon parser correctly handles semicolons inside strings:
+```logic
+define msg = "Hello; World"; constraint some_condition  # Only the last semicolon separates
+```
 
 ### Keywords
 
@@ -281,6 +319,19 @@ This extension is designed to work with the Rule Logic DSL framework for mammogr
 - No language server protocol implementation yet
 
 ## Release Notes
+
+### 1.3.0
+
+Added comprehensive semicolon statement separation support:
+
+- **Semicolon Statement Separation**: Support for using semicolons (`;`) to separate multiple statements on a single line
+- **Mixed Separation Styles**: Combine traditional line-based and semicolon-based statement separation
+- **Enhanced Syntax Highlighting**: Semicolons are properly highlighted as statement separators
+- **Improved Validation**: Parser correctly handles semicolon-separated statements with accurate error reporting
+- **Updated Document Outline**: Individual statements from semicolon-separated lines appear in outline view
+- **New Code Snippets**: Added snippets demonstrating semicolon usage patterns
+- **String-aware Parsing**: Semicolons inside string literals are correctly ignored
+- **Trailing Semicolon Support**: Optional trailing semicolons are supported and ignored
 
 ### 1.2.0
 

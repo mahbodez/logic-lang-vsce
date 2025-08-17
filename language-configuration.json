@@ -1,7 +1,6 @@
 {
   "comments": {
-    "lineComment": "#",
-    "blockComment": ["/*", "*/"]
+    "lineComment": "#"
   },
   "brackets": [
     ["(", ")"],
@@ -26,5 +25,13 @@
   "indentationRules": {
     "increaseIndentPattern": "^\\s*(define|constraint|const|expect)\\s+.*$",
     "decreaseIndentPattern": "^\\s*$"
-  }
+  },
+  "onEnterRules": [
+    {
+      "beforeText": ";\\s*$",
+      "action": {
+        "indent": "none"
+      }
+    }
+  ]
 }

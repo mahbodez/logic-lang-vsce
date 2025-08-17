@@ -89,6 +89,10 @@
         {
           "name": "keyword.operator.assignment.rule-logic",
           "match": "="
+        },
+        {
+          "name": "punctuation.separator.statement.rule-logic",
+          "match": ";"
         }
       ]
     },

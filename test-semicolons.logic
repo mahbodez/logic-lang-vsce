@@ -1,0 +1,33 @@
+# Test file for semicolon statement separation
+# ===========================================
+
+# Multiple statements on one line
+expect a, b; define c = a | b; constraint c
+
+# Mix of semicolons and newlines
+const threshold = 0.5; expect risk_score
+define high_risk = risk_score > threshold
+constraint high_risk weight=0.8
+
+# Multiple constants and definitions
+const low = 0.2; const high = 0.8; define range_check = value >= low & value <= high
+
+# Trailing semicolons (should be ignored)
+expect variables;
+define result = expression;
+constraint result;
+
+# Complex example with all statement types
+expect mass_L, mc_L; const cutoff = 0.7; define findings = mass_L | mc_L; constraint findings >> (sum(birads, [4, 5, 6]) > cutoff) weight=0.8 transform="logbarrier"
+
+# Traditional line-based separation still works
+expect findings_R, findings_L
+define bilateral = findings_L & findings_R
+constraint bilateral weight=0.6
+
+# Mixed approach
+const high_threshold = 0.8; const low_threshold = 0.2
+expect confidence_L, confidence_R
+define high_conf_L = confidence_L > high_threshold; define low_conf_L = confidence_L < low_threshold
+define high_conf_R = confidence_R > high_threshold; define low_conf_R = confidence_R < low_threshold
+constraint high_conf_L >> ~low_conf_L weight=1.0; constraint high_conf_R >> ~low_conf_R weight=1.0
