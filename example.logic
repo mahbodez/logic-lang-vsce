@@ -1,36 +1,72 @@
-# Sample Rule Logic File
-# ======================
+# Rule Logic Language Example
+# ==========================
+# This file demonstrates the complete Rule Logic DSL syntax including
+# the new semicolon statement separation feature.
 
-# Feature definitions - combine findings per breast
+# Variable expectations - declare required inputs
+expect mass_L, mass_R, mc_L, mc_R
+expect birads_L, birads_R, birads_score_L, birads_score_R
+expect comp, assessments, confidence_scores
+
+# Constants for reusable values
+const high_threshold = 0.8; const low_threshold = 0.2; const birads_cutoff = 4
+
+# Feature definitions using traditional line separation
 define findings_L = mass_L | mc_L
 define findings_R = mass_R | mc_R
 
-# BI-RADS probability groups
-define high_birads_L = sum(birads_L, [4, 5, 6])
-define high_birads_R = sum(birads_R, [4, 5, 6])
-define very_high_birads_L = sum(birads_L, [5, 6])
-define very_high_birads_R = sum(birads_R, [5, 6])
-define low_birads_L = sum(birads_L, [1, 2])
-define low_birads_R = sum(birads_R, [1, 2])
+# Multiple definitions using semicolons
+define high_birads_L = sum(birads_L, [4, 5, 6]); define high_birads_R = sum(birads_R, [4, 5, 6])
+define very_high_birads_L = sum(birads_L, [5, 6]); define very_high_birads_R = sum(birads_R, [5, 6])
+define low_birads_L = sum(birads_L, [1, 2]); define low_birads_R = sum(birads_R, [1, 2])
+
+# Risk assessments with comparison operators
+define high_risk_L = birads_score_L > high_threshold
+define low_risk_L = birads_score_L < low_threshold
+define moderate_risk_L = (birads_score_L >= low_threshold) & (birads_score_L <= high_threshold)
+
+# Tensor operations for consensus and evidence
+define consensus = & assessments  # All must agree
+define any_evidence = | assessments  # Any evidence sufficient
+
+# Multi-dimensional indexing examples
+define patient_subset = assessments[:3]  # First 3 patients
+define senior_assessments = assessments[:, :, 0]  # Senior radiologist across all views
+define cc_views = assessments[:, 0, :]  # CC view for all patients and radiologists
+
+# Range validation with mixed semicolon/line separation
+define valid_L = (birads_score_L >= 0.0) & (birads_score_L <= 1.0); define valid_R = (birads_score_R >= 0.0) & (birads_score_R <= 1.0)
 
 # No findings (negation of findings)
-define no_findings_L = ~findings_L
-define no_findings_R = ~findings_R
+define no_findings_L = ~findings_L; define no_findings_R = ~findings_R
 
-# Categorical exclusivity constraints
+# Advanced function examples
+define similarity = equals(birads_score_L, birads_score_R)
+define confidence_check = greater_than(confidence_scores, low_threshold)
+define clamped_scores = clamp(confidence_scores, 0.1, 0.9)
+
+# Constraints - categorical exclusivity
 constraint exactly_one(birads_L) weight=1.0 transform="logbarrier"
-constraint exactly_one(birads_R) weight=1.0 transform="logbarrier" 
-constraint exactly_one(comp) weight=0.7 transform="logbarrier"
+constraint exactly_one(birads_R) weight=1.0 transform="logbarrier"; constraint exactly_one(comp) weight=0.7
 
-# Logical implication constraints
-# Findings -> High BI-RADS (4-6)
-constraint findings_L >> high_birads_L weight=0.7 transform="logbarrier"
-constraint findings_R >> high_birads_R weight=0.7 transform="logbarrier"
+# Implication constraints using semicolons for conciseness
+constraint findings_L >> high_birads_L weight=0.7; constraint findings_R >> high_birads_R weight=0.7
 
 # Very High BI-RADS (5-6) -> Findings
 constraint very_high_birads_L >> findings_L weight=0.7 transform="logbarrier"
 constraint very_high_birads_R >> findings_R weight=0.7 transform="logbarrier"
 
-# Low BI-RADS (1-2) -> No findings (gentle constraint)
-constraint low_birads_L >> no_findings_L weight=0.3 transform="logbarrier"
-constraint low_birads_R >> no_findings_R weight=0.3 transform="logbarrier"
+# Low BI-RADS -> No findings (gentle constraint) with semicolons
+constraint low_birads_L >> no_findings_L weight=0.3; constraint low_birads_R >> no_findings_R weight=0.3
+
+# Advanced constraint patterns
+constraint at_least_k(findings_L | findings_R, 1) weight=0.6 transform="logbarrier"
+constraint threshold_implication(high_birads_L, findings_L, 0.7) weight=0.9
+constraint conditional_probability(consensus, high_birads_L | high_birads_R, 0.85) weight=0.8
+
+# Multi-constraint definitions with trailing semicolons (optional)
+constraint mutual_exclusion(mass_L, mc_L) weight=0.5 transform="hinge";
+constraint valid_L weight=2.0; constraint valid_R weight=2.0;
+
+# Complex multi-statement example demonstrating mixed patterns
+const expert_threshold = 0.9; expect expert_confidence; define expert_high = expert_confidence > expert_threshold; constraint expert_high >> consensus weight=1.0 transform="logbarrier"

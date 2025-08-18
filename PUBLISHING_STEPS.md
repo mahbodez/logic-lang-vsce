@@ -5,7 +5,7 @@
 ### 1. Create Publisher Account
 - Go to: https://marketplace.visualstudio.com/manage/publishers/
 - Sign in with Microsoft/Azure account
-- Create publisher with ID: `mahbodez` (or your preferred ID)
+- Create publisher with ID: `MahbodIssaiy` (or your preferred ID)
 - Fill in publisher details
 
 ### 2. Create Personal Access Token (PAT)
@@ -18,7 +18,7 @@
 
 ### 3. Authenticate vsce
 ```bash
-vsce login mahbodez
+vsce login MahbodIssaiy
 # Enter your PAT when prompted
 ```
 
@@ -30,7 +30,7 @@ vsce publish
 ## Alternative: Manual Upload
 
 If you prefer manual upload:
-1. Go to https://marketplace.visualstudio.com/manage/publishers/mahbodez
+1. Go to https://marketplace.visualstudio.com/manage/publishers/MahbodIssaiy
 2. Click "New extension" → "Visual Studio Code"
 3. Upload the `rule-logic-language-support-1.0.0.vsix` file
 4. Fill in the required details and publish
@@ -47,9 +47,9 @@ If you prefer manual upload:
 ## Post-Publication
 
 After publishing, your extension will be available at:
-`https://marketplace.visualstudio.com/items?itemName=mahbodez.rule-logic-language-support`
+`https://marketplace.visualstudio.com/items?itemName=MahbodIssaiy.rule-logic-language-support`
 
 Users can install it with:
 ```bash
-ext install mahbodez.rule-logic-language-support
+ext install MahbodIssaiy.rule-logic-language-support
 ```
