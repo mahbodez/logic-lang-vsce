@@ -34,6 +34,7 @@ vsce package  # Creates .vsix file
 ├── snippets/
 │   └── rule-logic.json    # Code snippets
 ├── language-configuration.json    # Language config
+├── logo.png               # Extension icon
 ├── example.logic          # Example file
 └── package.json           # Extension manifest
 ```

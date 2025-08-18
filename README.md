@@ -1,6 +1,10 @@
-# Rule Logic Language Support
+# Logic Language Support
 
-A VS Code extension that provides comprehensive language support for Rule Logic DSL files (`.logic`), designed for defining soft logic constraints in mammography classification and other medical imaging applications.
+<div align="center">
+  <img src="logo.png" alt="Logic Language Support Logo" >
+</div>
+
+A VS Code extension that provides comprehensive language support for Logic DSL files (`.logic`), designed for defining soft logic constraints in mammography classification and other medical imaging applications.
 
 ## Features
 
