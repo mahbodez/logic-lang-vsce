@@ -48,7 +48,7 @@
         },
         {
           "name": "keyword.other.rule-logic",
-          "match": "\\b(weight|transform)\\b"
+          "match": "\\b(weight|transform|as)\\b"
         }
       ]
     },
@@ -85,6 +85,10 @@
         {
           "name": "keyword.operator.comparison.rule-logic",
           "match": ">=|<=|==|>|<"
+        },
+        {
+          "name": "keyword.operator.arithmetic.rule-logic",
+          "match": "\\+|\\-|\\*|\\/"
         },
         {
           "name": "keyword.operator.assignment.rule-logic",

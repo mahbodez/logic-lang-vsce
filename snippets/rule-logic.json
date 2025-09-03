@@ -20,12 +20,26 @@
     ],
     "description": "Declare a single expected variable"
   },
+  "Expect Single Variable with Alias": {
+    "prefix": "expect_as",
+    "body": [
+      "expect ${1:variable_name} as ${2:alias_name}"
+    ],
+    "description": "Declare a single expected variable with an alias"
+  },
   "Expect Multiple Variables": {
     "prefix": "expect_multi",
     "body": [
       "expect ${1:variable1}, ${2:variable2}, ${3:variable3}"
     ],
     "description": "Declare multiple expected variables"
+  },
+  "Expect Multiple Variables with Aliases": {
+    "prefix": "expect_multi_as",
+    "body": [
+      "expect ${1:variable1} as ${2:alias1}, ${3:variable2}, ${4:variable3} as ${5:alias3}"
+    ],
+    "description": "Declare multiple expected variables with some aliases"
   },
   "Expect Variables Section": {
     "prefix": "expect_section",
@@ -38,6 +52,19 @@
       ""
     ],
     "description": "Complete expected variables section"
+  },
+  "Expect Variables Section with Aliases": {
+    "prefix": "expect_section_as",
+    "body": [
+      "# Expected Variables with Aliases",
+      "# ===============================",
+      "",
+      "expect ${1:mass_L} as ${2:left_mass}, ${3:mass_R} as ${4:right_mass}",
+      "expect ${5:birads_L} as ${6:left_birads}, ${7:birads_R} as ${8:right_birads}",
+      "expect ${9:comp} as ${10:composition}",
+      ""
+    ],
+    "description": "Complete expected variables section with aliases"
   },
   "Basic Constraint": {
     "prefix": "constraint",
@@ -172,6 +199,41 @@
     ],
     "description": "Equality comparison"
   },
+  "Addition": {
+    "prefix": "add",
+    "body": [
+      "${1:variable1} + ${2:variable2}"
+    ],
+    "description": "Addition operation"
+  },
+  "Subtraction": {
+    "prefix": "subtract",
+    "body": [
+      "${1:variable1} - ${2:variable2}"
+    ],
+    "description": "Subtraction operation"
+  },
+  "Multiplication": {
+    "prefix": "multiply",
+    "body": [
+      "${1:variable1} * ${2:variable2}"
+    ],
+    "description": "Multiplication operation"
+  },
+  "Division": {
+    "prefix": "divide",
+    "body": [
+      "${1:variable1} / ${2:variable2}"
+    ],
+    "description": "Division operation"
+  },
+  "Arithmetic Expression": {
+    "prefix": "arithmetic",
+    "body": [
+      "(${1:a} + ${2:b}) * ${3:factor} - ${4:offset}"
+    ],
+    "description": "Complex arithmetic expression with multiple operations"
+  },
   "Range Constraint": {
     "prefix": "range",
     "body": [
@@ -302,6 +364,13 @@
       "expect ${1:variable}; define ${2:result} = ${1:variable} ${3:operator} ${4:threshold}"
     ],
     "description": "Expect variable and define result using semicolon"
+  },
+  "Expect with Alias and Define": {
+    "prefix": "expect_define_as",
+    "body": [
+      "expect ${1:variable} as ${2:alias}; define ${3:result} = ${2:alias} ${4:operator} ${5:threshold}"
+    ],
+    "description": "Expect variable with alias and define result using the alias"
   },
   "Quick Setup": {
     "prefix": "quick_setup",

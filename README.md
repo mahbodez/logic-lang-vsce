@@ -9,9 +9,10 @@ A VS Code extension that provides comprehensive language support for Logic DSL f
 ## Features
 
 ### 🎨 **Syntax Highlighting**
-- Keywords: `define`, `constraint`, `const`, `weight`, `transform`
+- Keywords: `define`, `constraint`, `const`, `expect`, `weight`, `transform`, `as`
 - Logical operators: `|` (OR), `&` (AND), `~` (NOT), `>>` (IMPLIES), `^` (XOR)
 - Comparison operators: `>`, `<`, `>=`, `<=`, `==`
+- Arithmetic operators: `+`, `-`, `*`, `/`
 - Tensor operations: `| tensor` (OR_n), `& tensor` (AND_n)
 - Indexing syntax: `tensor[index]`, `tensor[start:end]`, `tensor[i, j]`
 - Built-in functions: `exactly_one`, `sum`, `mutual_exclusion`, `at_least_k`, `at_most_k`, `exactly_k`, `threshold_implication`, `conditional_probability`, `greater_than`, `less_than`, `equals`, `threshold_constraint`, `clamp`, `threshold`
@@ -62,6 +63,10 @@ expect mass_L, mass_R, mc_L, mc_R
 expect birads_L, birads_R, birads_score_L, birads_score_R
 expect comp
 
+# Declare expected variables with aliases using 'as' keyword
+expect patient_age as age, patient_weight as weight
+expect radiologist_1_assessment as senior_assessment, radiologist_2_assessment as resident_assessment
+
 # Define constants for reusable thresholds
 const high_risk_threshold = 0.7
 const low_risk_threshold = 0.3
@@ -70,6 +75,10 @@ const birads_high_cutoff = 4
 # Feature definitions - combine findings per breast
 define findings_L = mass_L | mc_L
 define findings_R = mass_R | mc_R
+
+# Feature definitions using aliased variables
+define high_risk_patient = (age > 50) & (weight > 70)
+define assessment_agreement = equals(senior_assessment, resident_assessment)
 
 # Multiple statements on one line using semicolons
 expect confidence; const threshold = 0.8; define high_conf = confidence > threshold
@@ -114,6 +123,9 @@ Type the following prefixes for quick templates:
 - `define` - Variable definition
 - `const` - Constant definition  
 - `expect` - Variable expectation declaration
+- `expect_as` - Variable expectation with alias
+- `expect_multi_as` - Multiple variables with aliases
+- `expect_section_as` - Complete expected variables section with aliases
 - `constraint` - Basic constraint
 - `comment` - Comment block
 
@@ -135,6 +147,12 @@ Type the following prefixes for quick templates:
 - `threshold_constraint` - Threshold constraint with operators
 - `clamp` - Clamp function
 - `threshold` - Threshold function
+
+**Arithmetic Operators:**
+- `+` - Addition
+- `-` - Subtraction
+- `*` - Multiplication
+- `/` - Division
 
 **Comparison Operators:**
 - `greater` - Greater than comparison (`>`)
@@ -202,6 +220,7 @@ define msg = "Hello; World"; constraint some_condition  # Only the last semicolo
 - `define` - Define variables and expressions
 - `const` - Define constants for reusable values
 - `expect` - Declare which variables the script expects to be provided
+- `as` - Used with `expect` to provide aliases for variables (e.g., `expect var1 as alias1`)
 - `constraint` - Create constraint rules
 - `weight` - Set constraint importance (default: 1.0)
 - `transform` - Choose penalty function (`logbarrier`, `hinge`, `linear`)
@@ -215,6 +234,12 @@ define msg = "Hello; World"; constraint some_condition  # Only the last semicolo
 - `^` - Logical XOR
 - `>>` - Logical IMPLIES
 - `=` - Assignment
+
+**Arithmetic Operators:**
+- `+` - Addition
+- `-` - Subtraction
+- `*` - Multiplication
+- `/` - Division
 
 **Comparison Operators:**
 - `>` - Greater than
@@ -324,6 +349,23 @@ This extension is designed to work with the Rule Logic DSL framework for mammogr
 
 ## Release Notes
 
+### 1.4.0
+
+Added variable aliasing support with the `as` keyword:
+
+- **Variable Aliasing**: Support for the `as` keyword in `expect` statements to provide alternative names for variables
+- **Alias Syntax**: Use `expect variable_name as alias_name` to create more descriptive or shorter variable names
+- **Mixed Aliasing**: Support for mixing aliased and non-aliased variables in the same expect statement
+- **Enhanced Syntax Highlighting**: The `as` keyword is properly highlighted in the editor
+- **Updated Validation**: Parser correctly validates expect statements with alias syntax
+- **Improved IntelliSense**: Completion and hover documentation for the `as` keyword
+- **New Code Snippets**: Added snippets for variable aliasing patterns:
+  - `expect_as`: Single variable with alias
+  - `expect_multi_as`: Multiple variables with mixed aliases
+  - `expect_section_as`: Complete expected variables section with aliases
+  - `expect_define_as`: Expect with alias and define using the alias
+- **Enhanced Documentation**: Updated example files and documentation to demonstrate aliasing
+
 ### 1.3.0
 
 Added comprehensive semicolon statement separation support:
@@ -353,11 +395,11 @@ Added support for variable expectations:
 
 Major update with comprehensive Rule Language support:
 
-- **Enhanced Syntax Highlighting**: Added support for `const` keyword, comparison operators (`>`, `<`, `>=`, `<=`, `==`), tensor operations (`| tensor`, `& tensor`), and indexing syntax
+- **Enhanced Syntax Highlighting**: Added support for `const` keyword, arithmetic operators (`+`, `-`, `*`, `/`), comparison operators (`>`, `<`, `>=`, `<=`, `==`), tensor operations (`| tensor`, `& tensor`), and indexing syntax
 - **Expanded Built-in Functions**: Added `at_least_k`, `at_most_k`, `exactly_k`, `threshold_implication`, `conditional_probability`, `greater_than`, `less_than`, `equals`, `threshold_constraint`
 - **Constant Definitions**: Support for `const` statements and reusable constants
 - **Tensor Operations**: AND_n and OR_n operations across tensors, multi-dimensional indexing with numpy/pytorch syntax
-- **Comparison Operators**: Native support for `>`, `<`, `>=`, `<=`, `==` with proper syntax highlighting
+- **Arithmetic & Comparison Operators**: Native support for arithmetic operators (`+`, `-`, `*`, `/`) and comparison operators (`>`, `<`, `>=`, `<=`, `==`) with proper syntax highlighting
 - **Advanced Snippets**: 40+ new code snippets covering all language features including tensor operations, consensus patterns, and medical domain templates
 - **Enhanced IntelliSense**: Completion for all new functions and operators
 - **Improved Documentation**: Comprehensive hover help for all built-in functions

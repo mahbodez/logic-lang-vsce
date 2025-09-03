@@ -4,6 +4,37 @@ All notable changes to the "rule-logic-language-support" extension will be docum
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.4.0] - 2025-01-15
+
+### Added
+- **Variable Aliasing with `as` Keyword**: Support for aliasing variables in expect statements using the `as` keyword
+  - Syntax: `expect var1 as alias1, var2, var3 as alias3`
+  - Enhanced validation logic to handle variable aliasing in expect statements
+  - Updated hover documentation for the `as` keyword
+  - New code snippets for variable aliasing:
+    - `expect_as`: Single variable with alias
+    - `expect_multi_as`: Multiple variables with mixed aliasing
+    - `expect_section_as`: Template with aliased variables
+    - `expect_define_as`: Expect with alias and define result
+- **Arithmetic Operators**: Full support for basic arithmetic operations
+  - Addition (`+`), Subtraction (`-`), Multiplication (`*`), Division (`/`)
+  - Enhanced syntax highlighting for arithmetic operators
+  - Updated hover documentation for all arithmetic operators
+  - New code snippets for arithmetic operations:
+    - `add`, `subtract`, `multiply`, `divide`: Basic arithmetic operations
+    - `arithmetic`: Complex arithmetic expression template
+
+### Changed
+- Updated TextMate grammar to highlight `as` keyword and arithmetic operators
+- Enhanced validation regex for expect statements to support variable aliasing
+- Improved syntax highlighting for mathematical expressions
+- Updated example.logic file with demonstrations of both features
+
+### Technical Details
+- Modified expect statement validation pattern to: `/^expect\s+\w+(\s+as\s+\w+)?(\s*,\s*\w+(\s+as\s+\w+)?)*\s*$/`
+- Added arithmetic operators as `keyword.operator.arithmetic.rule-logic` in grammar
+- Enhanced IntelliSense completion with `as` keyword and arithmetic operator context
+
 ## [1.3.0] - 2025-08-17
 
 ### Added

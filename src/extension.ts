@@ -27,7 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
 			const hoveredWord = document.getText(word);
 			
 			const functionDocs: { [key: string]: string } = {
-				'expect': 'Declares which variables (features) the script expects to be provided.\n\nUsage: \n- `expect variable_name`\n- `expect variable1, variable2, variable3`\n\nExample: `expect mass_L, mass_R, birads_L, birads_R`\n\nShould be placed at the beginning of the script for better error handling.',
+				'expect': 'Declares which variables (features) the script expects to be provided.\n\nUsage: \n- `expect variable_name`\n- `expect variable1, variable2, variable3`\n- `expect variable1 as alias1, variable2, variable3 as alias3`\n\nExample: `expect mass_L as left_mass, mass_R, birads_L as left_birads`\n\nAliases can be used with the `as` keyword to provide alternative names for variables.\n\nShould be placed at the beginning of the script for better error handling.',
+				'as': 'Used with `expect` statements to provide alternative names (aliases) for variables.\n\nUsage: `expect variable_name as alias_name`\n\nExample: `expect mass_L as left_mass, birads_R as right_birads`\n\nAllows using more descriptive or shorter names for expected variables within the script.',
 				'exactly_one': 'Creates exactly-one constraint for categorical probabilities.\n\nUsage: `exactly_one(probabilities)`\n\nEnsures that exactly one category is selected from mutually exclusive options.',
 				'sum': 'Sums probabilities for specified class indices.\n\nUsage: `sum(probabilities, [indices])`\n\nExample: `sum(birads_L, [4, 5, 6])` combines high BI-RADS categories.',
 				'mutual_exclusion': 'Creates mutual exclusion constraint between probabilities.\n\nUsage: `mutual_exclusion(prob1, prob2, ...)`\n\nEnsures at most one of the given probabilities can be high.',
@@ -41,7 +42,12 @@ export function activate(context: vscode.ExtensionContext) {
 				'greater_than': 'Creates soft greater than comparison between two tensors.\n\nUsage: `greater_than(left, right)`\n\nExample: `greater_than(confidence, baseline)`',
 				'less_than': 'Creates soft less than comparison between two tensors.\n\nUsage: `less_than(left, right)`\n\nExample: `less_than(risk_score, threshold_low)`',
 				'equals': 'Creates soft equality comparison between two tensors.\n\nUsage: `equals(left, right)`\n\nExample: `equals(score_a, score_b)`',
-				'threshold_constraint': 'Creates threshold constraint with specified comparison operator.\n\nUsage: `threshold_constraint(tensor, threshold, operator)`\n\nExample: `threshold_constraint(birads_score, 0.7, ">")`'
+				'threshold_constraint': 'Creates threshold constraint with specified comparison operator.\n\nUsage: `threshold_constraint(tensor, threshold, operator)`\n\nExample: `threshold_constraint(birads_score, 0.7, ">")`',
+				// Arithmetic operators
+				'+': 'Addition operator for arithmetic expressions.\n\nUsage: `expression + expression`\n\nExample: `define total = score_a + score_b`\n\nCan be used with tensors, constants, and variables.',
+				'-': 'Subtraction operator for arithmetic expressions.\n\nUsage: `expression - expression`\n\nExample: `define difference = high_score - low_score`\n\nCan be used with tensors, constants, and variables.',
+				'*': 'Multiplication operator for arithmetic expressions.\n\nUsage: `expression * expression`\n\nExample: `define weighted = risk_score * weight_factor`\n\nCan be used with tensors, constants, and variables.',
+				'/': 'Division operator for arithmetic expressions.\n\nUsage: `expression / expression`\n\nExample: `define average = total_score / count`\n\nCan be used with tensors, constants, and variables.'
 			};
 
 			if (functionDocs[hoveredWord]) {
@@ -82,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 
 			// Keywords
-			const keywords = ['define', 'constraint', 'const', 'expect', 'weight', 'transform'];
+			const keywords = ['define', 'constraint', 'const', 'expect', 'weight', 'transform', 'as'];
 			keywords.forEach(keyword => {
 				const item = new vscode.CompletionItem(keyword, vscode.CompletionItemKind.Keyword);
 				items.push(item);
@@ -274,10 +280,11 @@ function validateLogicFile(document: vscode.TextDocument) {
 			if (statement.startsWith('expect')) {
 				// Check for single variable: expect variable_name
 				// Check for multiple variables: expect var1, var2, var3
-				if (!statement.match(/^expect\s+\w+(\s*,\s*\w+)*\s*$/)) {
+				// Check for variables with aliases: expect var1 as alias1, var2, var3 as alias3
+				if (!statement.match(/^expect\s+\w+(\s+as\s+\w+)?(\s*,\s*\w+(\s+as\s+\w+)?)*\s*$/)) {
 					const diagnostic = new vscode.Diagnostic(
 						new vscode.Range(lineIndex, columnStart, lineIndex, columnStart + statement.length),
-						'Invalid expect statement. Expected: expect variable_name or expect var1, var2, var3',
+						'Invalid expect statement. Expected: expect variable_name, expect var1, var2, var3, or expect var1 as alias1, var2 as alias2',
 						vscode.DiagnosticSeverity.Error
 					);
 					diagnostics.push(diagnostic);

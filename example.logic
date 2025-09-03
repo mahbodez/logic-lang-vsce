@@ -1,19 +1,35 @@
 # Rule Logic Language Example
 # ==========================
 # This file demonstrates the complete Rule Logic DSL syntax including
-# the new semicolon statement separation feature.
+# the new semicolon statement separation and variable aliasing features.
 
 # Variable expectations - declare required inputs
 expect mass_L, mass_R, mc_L, mc_R
 expect birads_L, birads_R, birads_score_L, birads_score_R
 expect comp, assessments, confidence_scores
 
+# Variable expectations with aliases using the 'as' keyword
+expect patient_age as age, patient_weight as weight
+expect radiologist_1_assessment as senior_assessment, radiologist_2_assessment as resident_assessment
+expect left_density as density_L, right_density as density_R
+
 # Constants for reusable values
 const high_threshold = 0.8; const low_threshold = 0.2; const birads_cutoff = 4
+const age_threshold = 50; const weight_threshold = 70
+
+# Arithmetic expressions using aliases
+define age_factor = (age - age_threshold) / 10  # Age normalization using alias
+define weight_factor = weight / weight_threshold  # Weight ratio using alias
+define bmi_estimate = weight / (1.7 * 1.7)  # Simplified BMI calculation
 
 # Feature definitions using traditional line separation
 define findings_L = mass_L | mc_L
 define findings_R = mass_R | mc_R
+
+# Feature definitions using aliased variables
+define high_risk_patient = (age > age_threshold) & (weight > weight_threshold)
+define assessment_agreement = equals(senior_assessment, resident_assessment)
+define density_similarity = equals(density_L, density_R)
 
 # Multiple definitions using semicolons
 define high_birads_L = sum(birads_L, [4, 5, 6]); define high_birads_R = sum(birads_R, [4, 5, 6])
@@ -24,6 +40,13 @@ define low_birads_L = sum(birads_L, [1, 2]); define low_birads_R = sum(birads_R,
 define high_risk_L = birads_score_L > high_threshold
 define low_risk_L = birads_score_L < low_threshold
 define moderate_risk_L = (birads_score_L >= low_threshold) & (birads_score_L <= high_threshold)
+
+# Arithmetic operations for score calculations
+define combined_score = birads_score_L + birads_score_R  # Addition
+define score_difference = birads_score_L - birads_score_R  # Subtraction
+define weighted_score = birads_score_L * 0.8 + birads_score_R * 0.2  # Weighted combination
+define average_score = (birads_score_L + birads_score_R) / 2  # Average calculation
+define normalized_score = (combined_score - low_threshold) / (high_threshold - low_threshold)  # Normalization
 
 # Tensor operations for consensus and evidence
 define consensus = & assessments  # All must agree
@@ -59,6 +82,10 @@ constraint very_high_birads_R >> findings_R weight=0.7 transform="logbarrier"
 # Low BI-RADS -> No findings (gentle constraint) with semicolons
 constraint low_birads_L >> no_findings_L weight=0.3; constraint low_birads_R >> no_findings_R weight=0.3
 
+# Constraints using aliased variables
+constraint high_risk_patient >> assessment_agreement weight=0.7 transform="logbarrier"
+constraint density_similarity weight=0.4 transform="hinge"
+
 # Advanced constraint patterns
 constraint at_least_k(findings_L | findings_R, 1) weight=0.6 transform="logbarrier"
 constraint threshold_implication(high_birads_L, findings_L, 0.7) weight=0.9
@@ -68,5 +95,5 @@ constraint conditional_probability(consensus, high_birads_L | high_birads_R, 0.8
 constraint mutual_exclusion(mass_L, mc_L) weight=0.5 transform="hinge";
 constraint valid_L weight=2.0; constraint valid_R weight=2.0;
 
-# Complex multi-statement example demonstrating mixed patterns
-const expert_threshold = 0.9; expect expert_confidence; define expert_high = expert_confidence > expert_threshold; constraint expert_high >> consensus weight=1.0 transform="logbarrier"
+# Complex multi-statement example with aliases and semicolons
+expect expert_confidence as expert_conf; const expert_threshold = 0.9; define expert_high = expert_conf > expert_threshold; constraint expert_high >> consensus weight=1.0 transform="logbarrier"
